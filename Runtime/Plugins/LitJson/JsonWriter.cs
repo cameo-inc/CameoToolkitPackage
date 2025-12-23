@@ -36,7 +36,7 @@ namespace LitJson
         public int  Padding;
     }
 
-    public class JsonWriter
+    public class JsonWriter : IDisposable
     {
         #region Fields
         private static readonly NumberFormatInfo number_format;
@@ -52,6 +52,7 @@ namespace LitJson
         private bool                 validate;
         private bool                 lower_case_properties;
         private TextWriter           writer;
+        private bool                 is_disposed;
         #endregion
 
 
@@ -479,6 +480,38 @@ namespace LitJson
                 writer.Write (':');
 
             context.ExpectingValue = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (is_disposed)
+                return;
+
+            if (disposing)
+            {
+                if (writer != null)
+                {
+                    writer.Flush();
+                    // 只在內部創建 StringWriter 的情況下釋放
+                    if (inst_string_builder != null)
+                    {
+                        writer.Dispose();
+                    }
+                }
+            }
+
+            is_disposed = true;
+        }
+
+        ~JsonWriter()
+        {
+            Dispose(false);
         }
     }
 }
