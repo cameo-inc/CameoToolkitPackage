@@ -596,13 +596,19 @@ www.certificateHandler = cert;
             }
         }
 
-        public async Task<string> UploadImage(byte[] file, string folder, string fileName)
+        public async Task<string> UploadImage(byte[] file, string folder, string fileName, string strUser = null, string strToken = null)
         {
             string url = string.Format("{0}{1}/", FastAPISettings.UploadFileUrl, folder);
 
             WWWForm form = new WWWForm();
 
             form.AddBinaryData(FastAPISettings.UploadFileKey, file, fileName, "image/jpeg");
+
+            if (!string.IsNullOrEmpty(strUser) && !string.IsNullOrEmpty(strToken))
+            {
+                form.AddField(FastAPISettings.AccountKey, strUser);
+                form.AddField(FastAPISettings.TokenKey, strToken);
+            }
 
             UnityWebRequest www = UnityWebRequest.Post(url, form);
         #if UNITY_EDITOR
