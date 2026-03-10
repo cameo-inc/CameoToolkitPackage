@@ -14,6 +14,26 @@ namespace Cameo
 {
     public class FileRequestHelper : Singleton<FileRequestHelper>
     {
+        /// <summary>
+        /// 統一記錄請求錯誤，404 時明確顯示哪個 URL 回傳 404
+        /// </summary>
+        private static void LogRequestError(UnityWebRequest www, string url = null)
+        {
+            string targetUrl = !string.IsNullOrEmpty(url) ? url : www?.url ?? "";
+            long responseCode = www?.responseCode ?? 0;
+            if (responseCode == 404)
+            {
+                Debug.LogError($"404 Not Found: {targetUrl}");
+            }
+            else if (responseCode > 0)
+            {
+                Debug.LogError($"Request failed [HTTP {responseCode}]: {targetUrl}\n{www?.error}");
+            }
+            else
+            {
+                Debug.LogError($"Request failed: {targetUrl}\n{www?.error}");
+            }
+        }
 
         public async Task<T> LoadJson<T>(string url) where T : class
         {
@@ -31,7 +51,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogErrorFormat(www.error);
+                LogRequestError(www, url);
                 www.Dispose();
                 return null;
             }
@@ -70,7 +90,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogErrorFormat(www.error);
+                LogRequestError(www, url);
                 www.Dispose();
                 return null;
             }
@@ -109,8 +129,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("下載sheet失敗" + url);
-                Debug.Log(www.error);
+                LogRequestError(www, url);
                 www.Dispose();
                 return null;
             }
@@ -140,7 +159,7 @@ www.certificateHandler = cert;
                     }
                     else
                     {
-                        Debug.Log($"Error: {response.StatusCode}");
+                        Debug.LogError($"{(int)response.StatusCode} {response.StatusCode}: {url}");
                     }
                 }
                 catch (HttpRequestException e)
@@ -185,8 +204,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(url);
-                Debug.LogError(www.error);
+                LogRequestError(www, url);
             }
             www.Dispose();
         }
@@ -210,10 +228,8 @@ www.certificateHandler = cert;
             if (www.result != UnityWebRequest.Result.Success)
             {
                 result.Content = null;
-
                 result.ErrorMsg = www.error;
-
-                Debug.Log(www.error);
+                LogRequestError(www, url);
             }
             else
             {
@@ -248,9 +264,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogErrorFormat(www.error);
-
-                Debug.Log("target url : " + url);
+                LogRequestError(www, url);
                 Debug.Log("可能是user id與user token驗證失敗");
             }
             else
@@ -298,7 +312,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogErrorFormat(www.error);
+                LogRequestError(www, url);
             }
             else
             { 
@@ -334,9 +348,9 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(url);
-                Debug.Log(www.downloadHandler.text);
-                Debug.LogErrorFormat(www.error);
+                LogRequestError(www, url);
+                if (!string.IsNullOrEmpty(www.downloadHandler?.text))
+                    Debug.Log("Response: " + www.downloadHandler.text);
             }
             else
             {
@@ -647,15 +661,15 @@ www.certificateHandler = cert;
             www.disposeDownloadHandlerOnDispose = true;
             await www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError)
+            if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("Error While Sending: " + www.error);
+                LogRequestError(www, url);
                 www.Dispose();
                 return null;
             }
             else if (www.downloadHandler.text == "Not Found")
             {
-                //Debug.Log("Download image " + www.downloadHandler.text);
+                Debug.LogError($"404 Not Found: {url}");
                 www.Dispose();
                 return null;
             }
@@ -708,7 +722,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(www.error);
+                LogRequestError(www, "paths: " + string.Join(", ", paths));
             }
             else if (www.downloadHandler.text == "null")
             {
@@ -765,7 +779,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(www.error);
+                LogRequestError(www, "path: " + path);
             }
             else
             {
@@ -823,8 +837,7 @@ www.certificateHandler = cert;
 
             if (www.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log(www.error);
-
+                LogRequestError(www, "path: " + path);
                 return www.error;
             }
             else
