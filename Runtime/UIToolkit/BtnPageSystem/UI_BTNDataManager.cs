@@ -108,15 +108,31 @@ public class UI_BTNDataManager : Singleton<UI_BTNDataManager>
     }
     public IEnumerator LoadAll()
     {
-        foreach (var obj in preloaders)
+        // 並行載入所有 preloader，減少 API 等待時間
+        if (preloaders.Count > 0)
         {
-            yield return StartCoroutine(obj.InitializeCoroutine());
-            _hasLoaded[obj.BTNMenuUniqueID] = true;
+            int completedCount = 0;
+            foreach (var loader in preloaders)
+            {
+                var loaderCopy = loader;
+                StartCoroutine(LoadSingleThenCallback(loaderCopy, () =>
+                {
+                    _hasLoaded[loaderCopy.BTNMenuUniqueID] = true;
+                    completedCount++;
+                }));
+            }
+            yield return new WaitUntil(() => completedCount >= preloaders.Count);
         }
         for (int i = 0; i < DynamicLoaders.Count; i++)
         {
             preloaders.Add(DynamicLoaders[i]);
         }
+    }
+
+    private IEnumerator LoadSingleThenCallback(UI_BTNPageDataLoader loader, System.Action onComplete)
+    {
+        yield return loader.InitializeCoroutine();
+        onComplete?.Invoke();
     }
     public IEnumerator Load(string btnID)
     {
