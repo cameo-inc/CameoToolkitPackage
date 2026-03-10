@@ -1,7 +1,7 @@
 {
   "name": "com.cameo.toolkit",
   "displayName": "CameoToolkit",
-  "version": "0.10.71",
+  "version": "0.10.72",
   "unity": "2022.3",
   "unityRelease": "0a10",
   "description": "CameoToolkit is the base tool for Unity.\nSystemAudioCenter : Player audio clip\nDataToolKit :  load json data from google sheet and streamAssets\nThridParty Plugin: LitJson\nadd UI tools , and two plugins for UI : sirinx, leantween\n\n0314 fix and add new sheet download function\n03.03.2023 add new function to imageHelper, task for only one iinage\n02.07.2023 fix downloadingo int pharse bug\n02/02 defaut audio is unmute\n01.15.2023 fix dialogue bug\n01/31 add QuestionChoiceBox\n01/10/2023 add getCurrentDialogue api add on show dialogur call back\n12/29 add Resource manager, GlobalMediator, BTNPageSystem\n11/25 add Imager url Loading helper tool, and change DialogSetLoader to read images from url\n11/11 add UI_CloseBTN\n12/27 remove index from dialogue set\n12/27 modiy comfirm btn add functions",
