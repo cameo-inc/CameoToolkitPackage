@@ -75,7 +75,7 @@ namespace Cameo
             FastAPISettings.key_value_get = urlDefine.GetkeyUrl;
             FastAPISettings.key_value_set = urlDefine.SetkeyUrl;
             FastAPISettings.GameDataUrl = urlDefine.GameDataUrl;
-
+            WebGLPageApiBaseBridge.Publish(FastAPISettings.BaseAPIUrl);
         }
     }
 
