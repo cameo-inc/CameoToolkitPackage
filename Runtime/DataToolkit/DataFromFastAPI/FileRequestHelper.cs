@@ -142,6 +142,32 @@ www.certificateHandler = cert;
                 return data;
             }
         }
+
+        /// <summary>
+        /// POST application/json 並回傳回應本文（例如排行榜讀取用，避免 token 出現在 query）。
+        /// </summary>
+        public async Task<string> LoadJsonStringPost(string url, Dictionary<string, object> requestBody)
+        {
+            string jsonStr = JsonConvert.SerializeObject(requestBody);
+            using (UnityWebRequest www = new UnityWebRequest(url, "POST"))
+            {
+                www.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonStr));
+                www.downloadHandler = new DownloadHandlerBuffer();
+                www.SetRequestHeader("Content-Type", "application/json");
+#if UNITY_EDITOR
+                www.certificateHandler = new ForceAcceptAll();
+#endif
+                www.disposeUploadHandlerOnDispose = true;
+                www.disposeDownloadHandlerOnDispose = true;
+                await www.SendWebRequest();
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    LogRequestError(www, url);
+                    return null;
+                }
+                return www.downloadHandler.text;
+            }
+        }
 #if UNITY_EDITOR
         public async Task<string> LoadJsonStringLocal(string url)
         {
