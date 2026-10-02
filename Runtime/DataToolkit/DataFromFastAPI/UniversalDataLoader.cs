@@ -4,7 +4,7 @@ using Cameo;
 public class UniversalDataLoader : IDataLoader<string>
 {
     /// <summary>
-    /// Cameo fast api 用於讀取植樹案的google sheet表單
+    /// Cameo FastAPI：讀取 Google Sheet 表單資料
     /// </summary>
 
     //string BaseDataUrl { get { return BaseAPIUrl + AddAPIUrl; } }
